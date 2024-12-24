@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug server.js",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/hardhat-api/server.js",
+      // it's interfering with the env variables
+      // "env": {
+      //   "PRIVATE_KEY": "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+      //   "CONTRACT_ADDRESS": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      //   "PORT": "3000"
+      // },
+      "cwd": "${workspaceFolder}/hardhat-api",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Throughput.js",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/hardhat-api/Throughput.js",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "backend index.js",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/hardhat-api/backend/index.js",
+      // it's interfering with the env variables
+      // "env": {
+      //   "PRIVATE_KEY": "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+      //   "CONTRACT_ADDRESS": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      //   "PORT": "3000"
+      // },
+      "cwd": "${workspaceFolder}/hardhat-api",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+  ]
+}
