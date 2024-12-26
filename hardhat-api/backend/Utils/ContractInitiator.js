@@ -3,10 +3,10 @@ require('dotenv').config();
 const { JsonRpcProvider, Wallet, Contract } = require("ethers");
 // Import the web3 library
 const {Web3} = require('web3');
-const web3instance = new Web3(process.env.PROVIDER_URL);
+const web3instance = new Web3(process.env.HARDHAT_URL);
 
-const PROVIDER_URL = process.env.PROVIDER_URL;
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const HARDHAT_URL = process.env.HARDHAT_URL;
+const HARDHAT_PRIVATE_KEY = process.env.HARDHAT_PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const CONTRACT_ABI = [
   {
@@ -254,14 +254,14 @@ const CONTRACT_ABI = [
 ]
 
 // Verify env variables
-console.log('PROVIDER_URL: ' + PROVIDER_URL);
-console.log('PRIVATE_KEY: ' + PRIVATE_KEY);
+console.log('HARDHAT_URL: ' + HARDHAT_URL);
+console.log('HARDHAT_PRIVATE_KEY: ' + HARDHAT_PRIVATE_KEY);
 console.log('CONTRACT_ADDRESS: ' + CONTRACT_ADDRESS);
 
 // Configure the provider and signer
 
-const provider = new JsonRpcProvider(PROVIDER_URL); //local ganache
-const wallet = new Wallet(PRIVATE_KEY, provider);
+const provider = new JsonRpcProvider(HARDHAT_URL); //local ganache
+const wallet = new Wallet(HARDHAT_PRIVATE_KEY, provider);
 console.log('Wallet Created! : ' + wallet);
 
 // Contract instance new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet);
