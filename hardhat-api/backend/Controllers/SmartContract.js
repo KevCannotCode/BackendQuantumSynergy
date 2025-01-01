@@ -75,6 +75,7 @@ const saveTolockchain = async (body) => {
             message: "Model sent successfully",
             txHash: tx.hash,
             gasUsed: gasUsed,
+            timestamp: timestamp
         });
     } catch (error) {
         console.error(error);

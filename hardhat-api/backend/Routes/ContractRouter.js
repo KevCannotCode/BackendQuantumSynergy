@@ -4,6 +4,7 @@ const MulterHandler = require('../Middleware/MulterHandler');
 const MlFile = require('../Models/MlFile');
 const StorageHandling = require('../Controllers/StorageHandling');
 const SmartContract = require('../Controllers/SmartContract');
+const { GasCostPlugin } = require('ethers');
 
 // Endpoint to test the server
 router.get('/ping', async (req, res) => {
@@ -29,11 +30,20 @@ router.get('/pingContract', async (req, res) => {
   
 router.post('/upload', MulterHandler.setupFileUpload() , async (req, res) => {
     try{
-        const file = await StorageHandling.saveFileToDatabase(req.file);
+        const file = await StorageHandling.createFileToDatabase(req.file, req.body);
         // Insert line to call smart contract to upload the transaction
         const tx = await SmartContract.saveTolockchain(req.body);
         const name = req.file.originalname;
-        res.status(201).send({ message: 'File uploaded successfully', name, tx});
+        const result = await StorageHandling.updateFileToDatabase( file._id, tx.txHash, new Date(tx.timestamp));
+        res.status(201).send({ message: 'File uploaded successfully', 
+          name: result.name, 
+          timestamp: result.timestamp, 
+          owner: result.owner, 
+          receiver: result.receiver, 
+          transactionHash: result.transactionHash,
+          gasUsed: tx.gasUsed,
+          contentType: result.contentType
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Failed to upload file\n' + error });

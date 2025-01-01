@@ -1,4 +1,6 @@
 // app.js
+const ObjectId = require('mongoose').Types.ObjectId;
+const MLModel = require('../Models/ML');
 const MlFile = require('../Models/MlFile');
 require('dotenv').config();
 
@@ -16,13 +18,39 @@ require('dotenv').config();
 //         }
 //     };
 
-const saveFileToDatabase = async (file) => {
+const createFileToDatabase = async (file, body) => {
     try {
+        const {owner, receiver} = body;
+        const fileHash = "WRITE A FUNCTION TO BUILD THE HASH";
         const { originalname, buffer, mimetype } = file;
-        const newFile = await new MlFile({name: originalname, data: buffer, contentType: mimetype});
+        const newFile = await new MlFile({
+            fileHash: fileHash,
+            timestamp: null,
+            owner: owner,
+            receiver: receiver,
+            transactionHash: null,
+            name: originalname,
+            data: buffer,
+            contentType: mimetype});
             
         await newFile.save();
         return newFile;
+    } catch (error) {
+        throw new Error('Error uploading the file.' + error.message);
+    }
+};
+
+const updateFileToDatabase = async (id, transactionHash, timestamp) => {
+    try {
+        const update = await MlFile.findByIdAndUpdate(
+            id,
+            {
+                transactionHash: transactionHash,
+                timestamp: timestamp
+            }, 
+            {new: true}
+        );
+        return update;
     } catch (error) {
         throw new Error('Error uploading the file.' + error.message);
     }
@@ -59,5 +87,6 @@ const saveFileToDatabase = async (file) => {
 // });
 
 module.exports = {
-    saveFileToDatabase
+    createFileToDatabase,
+    updateFileToDatabase
 };
