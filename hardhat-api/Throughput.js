@@ -6,17 +6,22 @@ const fs = require('fs');
 const { model } = require('mongoose');
 require('dotenv').config();
 
+// Increase the max listeners to avoid memory leak warning
+require('events').EventEmitter.defaultMaxListeners = 20; // Increase this number based on the number of requests
+
+const NUM_OF_REQUESTS = 100; // Total requests for testing
+
 // Define server and endpoint URLs
 const PORT = process.env.PORT || 8080;
-const SERVER_URL = "HTTP://localhost:" + PORT;
-// const SERVER_URL = "HTTP://172.236.102.179:" + PORT;
+// const SERVER_URL = "HTTP://localhost:" + PORT;
+const SERVER_URL = "HTTP://172.236.102.179:" + PORT;
 const sendFileUrl = `${SERVER_URL}/upload`;
 const getFileDetailsUrl = `${SERVER_URL}/files/encrypted_data_hospital1.bin`; // Assuming fileId=1 for testing
 
 // Function to create form data for file upload
 function createFormData(filePath) {
     const form = new FormData();
-    form.append('machineLearningModel', fs.createReadStream(filePath)); // Attach the file here
+    // form.append('machineLearningModel', fs.createReadStream(filePath)); // Attach the file here
     form.append('mlName', 'Test ML Model');
     form.append('modelType', 'Test');
     form.append('owner', '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
@@ -48,28 +53,98 @@ async function callPingContract() {
     }
 }
 
-async function callSendFile(form) {
+//FETCH
+async function callSendFile(filePath) {
     try {
-        // Send the file via axios POST request
-        const response = await axios.post(sendFileUrl, form, {
-            headers: {
-                ...form.getHeaders()  // Automatically set the correct Content-Type for FormData
-            }
-        });
 
-        // Check if the upload was successful
-        if (response.status >= 200 && response.status < 300) {
-            console.log('File uploaded successfully:', response.data);
-            return true; // Success
+        const { default: fetch } = await import("node-fetch");
+        // Create a new FormData object
+        const formData = new FormData();
+
+        // Append the file and other necessary form fields (use your own file and parameters)
+        formData.append("machineLearningModel", fs.createReadStream("./encrypted_data_hospital1.bin"));
+        formData.append("mlName", "Poster");
+        formData.append("modelType", "Model Version Testing");
+        formData.append("owner", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+        formData.append("receiver", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+
+        // Set up the request options
+        const requestOptions = {
+            method: "POST",
+            body: formData,
+            redirect: "follow",
+            headers: formData.getHeaders(),  // Automatically set the necessary headers for FormData
+        };
+
+        // Send the request using fetch
+        const response = await fetch(sendFileUrl, requestOptions);
+
+        // Process the response
+        if (response.ok) {
+            const result = await response.text();  // You can also use .json() if the response is in JSON
+            console.log(result);
+            return true;
         } else {
             console.error('Error sending file:', response.statusText);
-            return false; // Failure
+            return false;
         }
     } catch (error) {
         console.error('Error in file upload:', error);
-        return false; // Failure
+        return false;
     }
 }
+
+// //GOT
+// async function callSendFile(form) {
+//     try {
+//         const { default: got } = await import('got');
+//         console.log(form.getHeaders());
+//         // Send the file via got
+//         const response = await got.post(sendFileUrl, {
+//             // body: null,
+//             headers: form.getHeaders(), // Add the necessary headers for FormData
+//         });
+
+//         // Check if the upload was successful
+//         if (response.statusCode >= 200 && response.statusCode < 300) {
+//             console.log('File uploaded successfully');
+//             return true; // Success
+//         } else {
+//             console.error('Error sending file:', response.statusCode);
+//             return false; // Failure
+//         }
+//     } catch (error) {
+//         console.error('Error in file upload:', error.message);
+//         return false; // Failure
+//     }
+// }
+
+// //Fetch
+// async function callSendFile(form) {
+//     try {
+//         // Validate if 'form' is a FormData object
+//         if (!(form instanceof FormData)) {
+//             console.error('The provided form is not an instance of FormData');
+//             return false;
+//         }
+//         // Send the file via fetch
+//         const response = await fetch(sendFileUrl, {
+//             method: 'POST',
+//             body: form,  // FormData object with the file
+//         });
+
+//         // Check if the upload was successful
+//         if (response.ok) {
+//             return true; // Success
+//         } else {
+//             console.error('Error sending file:', response.statusText);
+//             return false; // Failure
+//         }
+//     } catch (error) {
+//         console.error('Error in file upload:', error);
+//         return false; // Failure
+//     }
+// }
 
 async function callGetFileDetails() {
     try {
@@ -82,7 +157,6 @@ async function callGetFileDetails() {
 }
 
 // Throughput test configuration
-const NUM_OF_REQUESTS = 1; // Total requests for testing
 let SEND_SUCCESS = 0; // Number of successful sendFile requests
 let GET_SUCCESS = 0; // Number of successful getFileDetails requests
 
@@ -113,7 +187,7 @@ async function measureThroughput(call, data) {
 }
 
 (async () => {
-    const form = createFormData("C:/Users/kevin/Downloads/encrypted_data_hospital1.bin");
+    const form = createFormData("C:./encrypted_data_hospital1.bin");
     console.log("Throughput Test with " + NUM_OF_REQUESTS + " requests");
 
     // Measure sendFile throughput

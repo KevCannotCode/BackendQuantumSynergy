@@ -30,6 +30,7 @@ router.get('/pingContract', async (req, res) => {
   
 router.post('/upload', MulterHandler.setupFileUpload() , async (req, res) => {
     try{
+      console.log('Upload called');
         const file = await StorageHandling.createFileToDatabase(req.file, req.body);
         // Insert line to call smart contract to upload the transaction
         const tx = await SmartContract.saveTolockchain(req.body);
@@ -44,6 +45,7 @@ router.post('/upload', MulterHandler.setupFileUpload() , async (req, res) => {
           gasUsed: tx.gasUsed,
           contentType: result.contentType
         });
+      console.log('File uploaded successfully');
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Failed to upload file\n' + error });
@@ -53,8 +55,10 @@ router.post('/upload', MulterHandler.setupFileUpload() , async (req, res) => {
   // Route to display a list of uploaded files
   router.get('/files', async (req, res) => {
     try {
+      console.log('Files called');
       const files = await MlFile.find();
       res.send(files);
+      console.log('Files retrieved successfully');
     } catch (error) {
       console.error(error);
       res.status(500).send('Error retrieving files from the database.');
@@ -66,7 +70,7 @@ router.post('/upload', MulterHandler.setupFileUpload() , async (req, res) => {
     try {
       const file = await MlFile.findOne({name: req.params.id});
   
-      if (!file) {TEST
+      if (!file) {
         return res.status(404).send('File not found');
       }
   
