@@ -9,7 +9,7 @@ require('dotenv').config();
 // Increase the max listeners to avoid memory leak warning
 require('events').EventEmitter.defaultMaxListeners = 20; // Increase this number based on the number of requests
 
-const NUM_OF_REQUESTS = 100; // Total requests for testing
+const NUM_OF_REQUESTS = 1000; // Total requests for testing
 
 // Define server and endpoint URLs
 const PORT = process.env.PORT || 8080;

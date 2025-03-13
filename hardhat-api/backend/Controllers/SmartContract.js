@@ -1,4 +1,4 @@
-const {contract} = require('../Utils/ContractInitiator');
+const {contract, NFTContract} = require('../Utils/ContractInitiator');
 
 
 const saveTolockchain = async (body) => {
@@ -83,6 +83,28 @@ const saveTolockchain = async (body) => {
     }
 };
 
+const testNFTCreation = async () => {
+    try {
+        // Step 1: Test creating an NFT 
+        const nft_id = await NFTContract.mint("TEST URL NFT CREATION");
+        const receipt = await nft_id.wait(); // Wait for transaction confirmation
+        const gasUsed = receipt.gasUsed.toString();
+        const timestamp = new Date().toString();
+
+      // Get the transaction receipt
+        return ({
+            message: "Model sent successfully",
+            transaction_hash: nft_id.hash,
+            nft_id: nft_id,
+            gasUsed: gasUsed,
+            timestamp: timestamp
+        });
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to send the model to the blockchain: " + error.message);
+    }
+};
 module.exports = {
-    saveTolockchain
+    saveTolockchain,
+    testNFTCreation
 }; 

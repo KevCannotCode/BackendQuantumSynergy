@@ -64,6 +64,14 @@ contract FileTransfer {
         block.timestamp;
         // emit event for metadata recording
         emit MetadataRecorded(metadataCounter, mlName, mlHash, modelType, timestamp, msg.sender, receiver, contractHash);
-        
+    }
+
+        function recordDownload(string memory mlName, string memory mlHash, string memory modelType, string memory timestamp, address receiver, string memory contractHash) public {
+        // store metadata
+        string memory test = "ML Model Downloaded";
+        fileMetadata[metadataCounter] = Metadata(test, mlHash, modelType, timestamp, block.timestamp, msg.sender, receiver, contractHash);
+        block.timestamp;
+        // emit event for metadata recording
+        emit MetadataRecorded(metadataCounter, mlName, mlHash, modelType, timestamp, msg.sender, receiver, contractHash);
     }
 }

@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
+// require('@openzeppelin/hardhat-upgrades');// NFT Library from OPENZEPPELIN
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.27",

@@ -23,6 +23,17 @@ router.get('/pingContract', async (req, res) => {
   }
 });
 
+router.get('/createNFT', async (req, res) => {
+  try {
+      const nft = await SmartContract.testNFTCreation();
+      console.log('NFT created successfully');
+      res.status(200).send({ message: 'NFT created successfully', nft_id: nft.nft_id, gasUsed: nft.gasUsed, timestamp: nft.timestamp });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: 'Failed to create NFT\n' + error });
+  }
+});
+
 // Route for uploading a PDF file
 // router.post('/upload', StorageHandling.setupFileUpload('machineLearningModel'), StorageHandling.fileUpload(), async (req, res) => {
 //     console.log('-- Upload Succeeded -- ');

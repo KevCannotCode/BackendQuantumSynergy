@@ -8,7 +8,21 @@
 - **root/test**: Contains test files for smart contracts.
 - **root/scripts**: Contains deployment scripts for publishing smart contracts to a blockchain network.
 
-## Installation Steps
+## Automated Installation 
+
+THe whole process is automated by the starter shell script. Follow these steps (NOTE: select the bash terminal in vscode):
+
+1. Navigate to `hardhat-api`:
+    ```sh
+    cd hardhat-api
+    ```
+2. Run the automated started script:
+    ```sh
+    ./starter.sh
+
+If the steps above do not work, try to debug. The details bellow will give you a step by step manual installation.
+
+## Manual Installation
 
 ### Setup Node.js Server
 
@@ -24,6 +38,7 @@
     ```sh
     npm install express ethers dotenv
     npm install --save-dev hardhat
+    npm install @openzeppelin/contracts //this is the NFT library 
     ```
 
 ### Setup Hardhat
