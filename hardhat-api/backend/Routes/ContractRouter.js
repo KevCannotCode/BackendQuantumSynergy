@@ -15,8 +15,8 @@ router.get('/ping', async (req, res) => {
 // Endpoint to test the smart contract
 router.get('/pingContract', async (req, res) => {
   try {
-      const contractResponse = await contract.ping();
-      res.status(200).send({ message: 'Contract responsed ' + contractResponse });
+      const contractResponse = await SmartContract.ping();
+      res.status(200).send({ contractResponse});
   } catch (error) {
       console.error(error);
       res.status(500).send({ error: 'Failed to send model\n' + error });
@@ -25,19 +25,47 @@ router.get('/pingContract', async (req, res) => {
 
 router.get('/createNFT', async (req, res) => {
   try {
-      const nft = await SmartContract.testNFTCreation();
+      const nft = await SmartContract.addTokenToMarket(req.body);
       console.log('NFT created successfully');
-      res.status(200).send({ message: 'NFT created successfully', nft_id: nft.nft_id, gasUsed: nft.gasUsed, timestamp: nft.timestamp });
+      res.status(200).send({ message: nft.message, NFT: nft.nft, trans_hash: nft.transaction_hash});
   } catch (error) {
       console.error(error);
       res.status(500).send({ error: 'Failed to create NFT\n' + error });
   }
 });
 
-// Route for uploading a PDF file
-// router.post('/upload', StorageHandling.setupFileUpload('machineLearningModel'), StorageHandling.fileUpload(), async (req, res) => {
-//     console.log('-- Upload Succeeded -- ');
-// });
+router.get('/getTokenCount', async (req, res) => {
+  try {
+      const nft = await SmartContract.getTokenCountFromMarket();
+      console.log('Retrieved the counter');
+      res.status(200).send({ message: nft.message, hash: nft.transaction_hash, tokenCount: nft.tokenCount});
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: 'Failed to get token count\n' + error });
+  }
+});
+
+router.get('/getPatientData', async (req, res) => {
+  try {
+      const nft = await SmartContract.getPatientDataFromMarket(req.body);
+      console.log('NFT data retrieved');
+      res.status(200).send({ message: nft.message, nft: nft.nft});
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: 'Failed to get data\n' + error });
+  }
+});
+
+router.get('/grantAccess', async (req, res) => {
+  try {
+      const nft = await SmartContract.grantAccessFromMarket(req.body);
+      console.log('NFT access granted');
+      res.status(200).send({ message: nft.message, patient: nft.patientAddress, hospital: nft.hospitalAddress});
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ error: 'Failed to create NFT\n' + error });
+  }
+});
   
 router.post('/upload', MulterHandler.setupFileUpload() , async (req, res) => {
     try{

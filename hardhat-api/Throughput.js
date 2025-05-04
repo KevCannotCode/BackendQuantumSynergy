@@ -9,13 +9,15 @@ require('dotenv').config();
 // Increase the max listeners to avoid memory leak warning
 require('events').EventEmitter.defaultMaxListeners = 20; // Increase this number based on the number of requests
 
-const NUM_OF_REQUESTS = 1000; // Total requests for testing
+const NUM_OF_REQUESTS = 10; // Total requests for testing
 
 // Define server and endpoint URLs
 const PORT = process.env.PORT || 8080;
-// const SERVER_URL = "HTTP://localhost:" + PORT;
-const SERVER_URL = "HTTP://172.236.102.179:" + PORT;
+const SERVER_URL = "HTTP://localhost:" + PORT;
+// const SERVER_URL = "HTTP://172.236.102.179:" + PORT;
 const sendFileUrl = `${SERVER_URL}/upload`;
+const createNFTUrl = `${SERVER_URL}/createNFT`;
+const getTokenID = `${SERVER_URL}/getTokenCount`; 
 const getFileDetailsUrl = `${SERVER_URL}/files/encrypted_data_hospital1.bin`; // Assuming fileId=1 for testing
 
 // Function to create form data for file upload
@@ -94,6 +96,95 @@ async function callSendFile(filePath) {
     }
 }
 
+// NFT CREATE
+async function createNFT() {
+    const data = JSON.stringify({
+        "patientAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "URL": "https://example.com"
+    });
+
+    const config = {
+        method: 'get',  // Note: 'get' with a body is non-standard; see comment below
+        maxBodyLength: Infinity,
+        url: 'http://localhost:8080/createNFT', // lowercase 'http'
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
+
+    try {
+        const response = await axios.request(config);
+        return response.status === 200;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+// Get tokencount to set tokenId
+async function getTokenCount() {
+    try {
+        const response = await axios.get(getTokenID);
+        return response.data.tokenCount; // Success
+    } catch (error) {
+        console.error('Error calling getFileDetails:', error);
+        return -1; // Failure
+    }
+}
+
+// SET Hospital Address
+async function grantAccess() {
+    const data = JSON.stringify({
+        "hospitalAddress":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "tokenId": ""+TOKEN_ID+""
+    });
+
+    const config = {
+        method: 'get',  // Note: 'get' with a body is non-standard; see comment below
+        maxBodyLength: Infinity,
+        url: 'http://localhost:8080/grantAccess', // lowercase 'http'
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
+
+    try {
+        const response = await axios.request(config);
+        return response.status === 200;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+// GET Patient Data
+async function getPatientData() {
+    const data = JSON.stringify({
+        "hospitalAddress":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "tokenId": ""+TOKEN_ID+""
+    });
+
+    const config = {
+        method: 'get',  // Note: 'get' with a body is non-standard; see comment below
+        maxBodyLength: Infinity,
+        url: 'http://localhost:8080/getPatientData', // lowercase 'http'
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
+
+    try {
+        const response = await axios.request(config);
+        return response.status === 200;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
 // //GOT
 // async function callSendFile(form) {
 //     try {
@@ -157,6 +248,7 @@ async function callGetFileDetails() {
 }
 
 // Throughput test configuration
+let TOKEN_ID = 0; // Tracks the token id for each run
 let SEND_SUCCESS = 0; // Number of successful sendFile requests
 let GET_SUCCESS = 0; // Number of successful getFileDetails requests
 
@@ -166,14 +258,37 @@ async function measureThroughput(call, data) {
     
     for (let i = 0; i < NUM_OF_REQUESTS; i++) {
         let success = false;
-        if(call === "Send"){
-            success = await callSendFile(data);
+        // // This is for file upload and download
+        // if(call === "Send"){
+        //     success = await callSendFile(data);
+        //     if (success) SEND_SUCCESS++; // Only increment if success
+        // }
+        // if(call === "Get"){
+        //     success = await callGetFileDetails();
+        //     if (success) GET_SUCCESS++; // Only increment if success
+        // }
+
+        // This is for NFT creation
+        if(call === "createNFT"){
+            success = await createNFT();
+            if (success) {
+                newCount = await getTokenCount(); // Call to get token count
+                TOKEN_ID = newCount != -1 ? newCount -1: TOKEN_ID; // Update the token ID for the next request
+                success = await grantAccess(); // Grant access to the hospital
+            }
+            success = success && newCount != -1; // Check if both operations were successful
             if (success) SEND_SUCCESS++; // Only increment if success
         }
-        if(call === "Get"){
-            success = await callGetFileDetails();
-            if (success) GET_SUCCESS++; // Only increment if success
+        // This is for getting patient data
+        if(call === "getPatientData"){
+            success = await getPatientData();
+            if (success) {
+                GET_SUCCESS++;
+                TOKEN_ID = TOKEN_ID > 0 ? TOKEN_ID -1 : TOKEN_ID; // Increment token ID for the next request
+             } // Only increment if success
         }
+
+        await new Promise(resolve => setTimeout(resolve, 200));// Added a 2 milisecond delay between requests to avoid overwhelming the server
     }
 
     const end = Date.now();
@@ -190,29 +305,30 @@ async function measureThroughput(call, data) {
     const form = createFormData("C:./encrypted_data_hospital1.bin");
     console.log("Throughput Test with " + NUM_OF_REQUESTS + " requests");
 
-    // Measure sendFile throughput
-    const sendFileResult = await measureThroughput("Send", form);
+    // Measure createNFT throughput
+    const sendCreateNFT = await measureThroughput("createNFT", form);
 
-    // Measure getFileDetails throughput
-    const getFileDetailsResult = await measureThroughput("Get", form);
+    // Measure getNFT throughput
+    const getPatientData = await measureThroughput("getPatientData", form);
 
-    console.log('Send File Success:', SEND_SUCCESS);
-    console.log('Get File Success:', GET_SUCCESS);
+    console.log('Create NFT Success:', SEND_SUCCESS);
+    console.log('Get NFT Success:', GET_SUCCESS);
     // Display results in table format
     console.table([
         { 
-            Endpoint: 'Sending ML Model', 
-            'Total Time (s)': sendFileResult.totalTime.toFixed(2), 
-            'Throughput (req/s)': sendFileResult.throughput.toFixed(2),
-            'CPU Usage (ms)': sendFileResult.cpuUsage.toFixed(2), 
-            'Average Latency (ms)': sendFileResult.averageLatency.toFixed(2)
-        },
+            Endpoint: 'Create NFT', 
+            'Total Time (s)': sendCreateNFT.totalTime.toFixed(2), 
+            'Throughput (req/s)': sendCreateNFT.throughput.toFixed(2),
+            'CPU Usage (ms)': sendCreateNFT.cpuUsage.toFixed(2), 
+            'Average Latency (ms)': sendCreateNFT.averageLatency.toFixed(2)
+        }
+        ,
         { 
-            Endpoint: 'Fetching Links to ML Model Link', 
-            'Total Time (s)': getFileDetailsResult.totalTime.toFixed(2), 
-            'Throughput (req/s)': getFileDetailsResult.throughput.toFixed(2),
-            'CPU Usage (ms)': getFileDetailsResult.cpuUsage.toFixed(2), 
-            'Average Latency (ms)': getFileDetailsResult.averageLatency.toFixed(2)
+            Endpoint: 'Get NFT Data', 
+            'Total Time (s)': getPatientData.totalTime.toFixed(2), 
+            'Throughput (req/s)': getPatientData.throughput.toFixed(2),
+            'CPU Usage (ms)': getPatientData.cpuUsage.toFixed(2), 
+            'Average Latency (ms)': getPatientData.averageLatency.toFixed(2)
         }
     ]);
 })();
