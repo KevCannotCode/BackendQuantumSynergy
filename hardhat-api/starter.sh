@@ -30,15 +30,21 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 # echo "SETUP MESSAGE: Navigating to backend directory and installing dependencies..."
 # cd "$BACKEND_DIR" || { echo "Failed to navigate to $BACKEND_DIR"; exit 1; }
 
-# npm install || { echo "npm install failed"; exit 1; }
-# npm install express ethers dotenv || { echo "npm install express ethers dotenv failed"; exit 1; }
-# npm install --save-dev hardhat || { echo "npm install hardhat failed"; exit 1; }
-# npm install @openzeppelin/contracts || { echo "npm install @openzeppelin/contracts failed"; exit 1; }
-# npm install multer || { echo "npm install multer failed"; exit 1; }
+npm install || { echo "npm install failed"; exit 1; }
+echo "SETUP MESSAGE: npm was installed "
+npm install express ethers dotenv || { echo "npm install express ethers dotenv failed"; exit 1; }
+echo "SETUP MESSAGE: npm express was installed "
+npm install --save-dev hardhat || { echo "npm install hardhat failed"; exit 1; }
+echo "SETUP MESSAGE: npm hardhat installed "
+npm install @openzeppelin/contracts || { echo "npm install @openzeppelin/contracts failed"; exit 1; }
+echo "SETUP MESSAGE: npm openzeppelin was installed "
+npm install multer || { echo "npm install multer failed"; exit 1; }
+echo "SETUP MESSAGE: npm multer was installed "
 
 # # Install Hardhat toolbox
 # echo "SETUP MESSAGE: Installing Hardhat toolbox..."
-# npm install --save-dev @nomicfoundation/hardhat-toolbox || { echo "npm install hardhat-toolbox failed"; exit 1; }
+npm install --save-dev @nomicfoundation/hardhat-toolbox || { echo "npm install hardhat-toolbox failed"; exit 1; }
+echo "SETUP MESSAGE: npm hardhat toolbox was installed "
 
 # Start Hardhat local network in the background
 echo "SETUP MESSAGE: Starting Hardhat local network..."

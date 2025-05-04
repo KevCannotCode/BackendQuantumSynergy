@@ -1,5 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("@nomicfoundation/hardhat-ledger");
+//require("@nomicfoundation/hardhat-ledger");
 require("dotenv").config();
 // require('@openzeppelin/hardhat-upgrades');// NFT Library from OPENZEPPELIN
 /** @type import('hardhat/config').HardhatUserConfig */
