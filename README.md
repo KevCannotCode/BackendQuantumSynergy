@@ -1,6 +1,8 @@
 
 # QuantumSynergy
 
+## Research Report
+Read the slide in the root directory
 ## Repository Structure
 
 - **root/backend**: Contains the Node.js server code that allows API endpoints to interact with the blockchain (smart contract).
