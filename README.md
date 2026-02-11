@@ -2,8 +2,9 @@
 # QuantumSynergy
 
 ## Research Report
-Read the slide in the root directory or below
-![Project Report](Research-Report.pdf)
+Read the slide in the root directory or click on this image
+
+![Report](Research-Report.pdf)
 
 ## Project Architecture
 ![Architecture Diagram](Architecture-Diagram.png)
