@@ -2,7 +2,14 @@
 # QuantumSynergy
 
 ## Research Report
-Read the slide in the root directory
+Read the slide in the root directory or below
+![Project Report](Research-Report.pdf)
+
+## Project Architecture
+![Architecture Diagram](Architecture-Diagram.png)
+![Blockchain and API Structure](NFT-Marketplace-Backend.png)
+![Sequence Diagram Showing Interactions in User Journey](Quantum-Synergy-Prototype-Interactions.png)
+
 ## Repository Structure
 
 - **root/backend**: Contains the Node.js server code that allows API endpoints to interact with the blockchain (smart contract).
