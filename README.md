@@ -2,9 +2,9 @@
 # QuantumSynergy
 
 ## Research Report
-Read the slide in the root directory or click on this image
+![Report cover page](Research_cover.png)
 
-![Report](Research-Report.pdf)
+CLick this link to read the research presentation:  -> ![Report](Research-Report.pdf)
 
 ## Project Architecture
 ![Architecture Diagram](Architecture-Diagram.png)
